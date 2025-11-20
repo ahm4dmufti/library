@@ -1,3 +1,38 @@
+document.addEventListener('DOMContentLoaded', () => {
+  const state = document.getElementById('history-state');
+  const list = document.getElementById('history-list');
+  const user = localStorage.getItem('currentUser');
+
+  if (!user) {
+    state.innerHTML = '<div class="alert alert-warning">You are not signed in. Please <a href="register.html">login or register</a>.</div>';
+    return;
+  }
+
+  state.innerHTML = `<div class="alert alert-success">Signed in as <strong>${user}</strong></div>`;
+
+  const key = `history_${user}`;
+  let history = [];
+  try { history = JSON.parse(localStorage.getItem(key) || '[]'); } catch (e) { history = []; }
+
+  if (!history.length) {
+    list.innerHTML = '<p class="text-muted">No borrowing records yet.</p>';
+    return;
+  }
+
+  // Render history entries
+  list.innerHTML = history.map(entry => {
+    const date = new Date(entry.date).toLocaleString();
+    const titles = entry.titles.map(t => `<li>${t}</li>`).join('');
+    return `
+      <div class="card mb-3">
+        <div class="card-body">
+          <h5 class="card-title">Borrowed on ${date}</h5>
+          <ul class="mb-0">${titles}</ul>
+        </div>
+      </div>
+    `;
+  }).join('');
+});
 // بيانات السجل - ممكن تعدلها
 const historyData = [
     {

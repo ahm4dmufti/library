@@ -169,10 +169,17 @@ function handleCheckout() {
         showMessage('Your cart is empty. Please add books to borrow.', 'error');
         return;
     }
+    // Require a signed-in user
+    const currentUser = localStorage.getItem('currentUser');
+    if (!currentUser) {
+        showMessage('Please register or login before borrowing. Go to Register page.', 'error');
+        return;
+    }
 
     // Simulate the borrowing transaction
     const borrowedTitles = cart.map(b => b.title).join(', ');
-    
+    const borrowedIds = cart.map(b => b.id);
+
     // 1. Update the main book data status (set available to false)
     cart.forEach(cartItem => {
         const bookIndex = books.findIndex(b => b.id === cartItem.id);
@@ -181,14 +188,29 @@ function handleCheckout() {
         }
     });
 
-    // 2. Clear the cart
+    // 2. Save to user's history in localStorage
+    try {
+        const key = `history_${currentUser}`;
+        const raw = localStorage.getItem(key);
+        const history = raw ? JSON.parse(raw) : [];
+        history.push({
+            date: new Date().toISOString(),
+            titles: cart.map(b => b.title),
+            ids: borrowedIds
+        });
+        localStorage.setItem(key, JSON.stringify(history));
+    } catch (e) {
+        console.error('Failed to save history', e);
+    }
+
+    // 3. Clear the cart
     cart = [];
 
-    // 3. Update the UI
+    // 4. Update the UI
     renderCart();
     renderBookList(searchInput.value);
 
-    // 4. Show success message
+    // 5. Show success message
     const successMessage = `Success! You have borrowed: ${borrowedTitles}. Please return them by next month.`;
     showMessage(successMessage, 'success');
 }
