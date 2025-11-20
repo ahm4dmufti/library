@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Borrow Books - LibraConnect</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for aesthetic enhancements */
+        .book-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+        .book-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+        .borrowed {
+            background-color: #fef2f2; /* Light red background */
+            border: 2px solid #ef4444; /* Red border */
+            opacity: 0.6;
+        }
+        .borrowed .borrow-button {
+            background-color: #9ca3af; /* Gray button */
+            cursor: not-allowed;
+        }
+        .borrow-button {
+            transition: background-color 0.2s;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen font-sans">
+
+    <!-- Navbar (Simplified using Tailwind) -->
+    <nav class="bg-indigo-700 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex-shrink-0">
+                    <a href="index.html" class="text-white text-2xl font-bold tracking-wider">LibraConnect</a>
+                </div>
+                <div class="hidden sm:ml-6 sm:flex sm:space-x-4">
+                    <a href="catalog.html" class="text-indigo-200 hover:bg-indigo-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150">Catalog</a>
+                    <a href="borrow.html" class="bg-indigo-800 text-white px-3 py-2 rounded-md text-sm font-medium">Borrow</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <header class="py-12 bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h1 class="text-4xl font-extrabold text-gray-900 text-center">Book Lending Desk</h1>
+            <p class="mt-2 text-xl text-gray-500 text-center">Select the books you want to borrow from our collection.</p>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+
+        <!-- Search and Filter Section -->
+        <div class="mb-8">
+            <input type="text" id="borrow-search-input" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-lg" placeholder="Search for titles, authors, or ISBN...">
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Column 1: Book List -->
+            <div class="lg:col-span-2">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4 border-b pb-2">Available Books</h2>
+                <div id="book-list-container" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Book Cards will be injected here by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Column 2: Borrowing Cart and Action -->
+            <div class="sticky top-4 h-fit bg-white p-6 rounded-xl shadow-xl border border-gray-100">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4 border-b pb-2">Your Borrowing Cart</h2>
+                
+                <div id="cart-list" class="space-y-4 mb-6">
+                    <p id="empty-cart-message" class="text-gray-500 italic">Your cart is empty. Add a book to get started!</p>
+                    <!-- Cart items will be injected here -->
+                </div>
+
+                <div class="border-t pt-4">
+                    <p class="flex justify-between items-center text-xl font-bold text-gray-700">
+                        <span>Total Items:</span>
+                        <span id="total-items-count" class="text-indigo-600">0</span>
+                    </p>
+                    <button id="checkout-button" class="w-full mt-4 bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-lg text-lg shadow-md transition duration-200 disabled:bg-gray-400" disabled>
+                        Confirm Borrowing
+                    </button>
+                    <div id="message-box" class="mt-4 p-3 rounded-lg text-sm text-center hidden" role="alert"></div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="mt-12 py-6 bg-gray-800 text-white text-center">
+        <p class="text-sm">&copy; <span id="current-year"></span> LibraConnect. All rights reserved.</p>
+    </footer>
+
+    <script src="./assets/borrow.js"></script>
+</body>
+</html>
