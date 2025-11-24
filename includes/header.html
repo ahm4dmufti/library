@@ -1,29 +1,63 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-  <title>Header</title>
-</head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-0">
-        <div class="container">
-            <a class="navbar-brand" href="../index.html" target="_parent">Bookstore</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="mainNav">
-                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                    <li class="nav-item"><a class="nav-link" href="../index.html" target="_parent">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="../catalog.html" target="_parent">Catalog</a></li>
-                    <li class="nav-item"><a class="nav-link" href="../borrow.html" target="_parent">Borrow</a></li>
-                    <li class="nav-item"><a class="nav-link" href="../history.html" target="_parent">History</a></li>
-                    <li class="nav-item"><a class="nav-link" href="../register.html" target="_parent">Register</a></li>
-                </ul>
-            </div>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+    <link rel="stylesheet" href="../assets/style.css">
+    <style>
+      .compact-nav { height:56px }
+      .compact-nav .navbar-brand { display:flex; align-items:center; gap:.5rem; font-weight:700 }
+      .compact-nav .nav-link { color:#334155 }
+      .compact-account { font-size:.9rem }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-white compact-nav shadow-sm">
+      <div class="container">
+        <a class="navbar-brand" href="../index.html" target="_parent">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 6c0-1.1.9-2 2-2h12v14H5c-1.1 0-2-.9-2-2V6zM21 4h-1v14c0 1.1-.9 2-2 2H7v-2h11V4z"/></svg>
+          <span class="ms-1">Library</span>
+        </a>
+
+        <!-- Navigation removed as requested: header now shows only brand and account area -->
+
+        <div class="d-flex ms-auto align-items-center compact-account" id="account-area">
+          <span id="account-greeting" class="me-2 muted">Not signed in</span>
+          <a id="account-action" class="btn btn-sm btn-outline-primary" href="../register.html" target="_parent">Register</a>
         </div>
+      </div>
     </nav>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-</body>
+
+    <script>
+      // compact header script: read parent localStorage for currentUser and update account area
+      function safeParentGet(key){ try{ return parent.localStorage.getItem(key); }catch(e){ return null } }
+      function safeParentRemove(key){ try{ parent.localStorage.removeItem(key); }catch(e){} }
+
+      function renderAccount(){
+        const user = safeParentGet('currentUser');
+        const greeting = document.getElementById('account-greeting');
+        const action = document.getElementById('account-action');
+        if (user) {
+          greeting.textContent = 'Hi, ' + user;
+          action.textContent = 'Logout';
+          action.className = 'btn btn-sm btn-outline-danger';
+          action.href = '#';
+          action.onclick = (e) => { e.preventDefault(); safeParentRemove('currentUser'); try{ parent.location.reload(); }catch(_) { location.reload(); } };
+        } else {
+          greeting.textContent = 'Not signed in';
+          action.textContent = 'Register';
+          action.className = 'btn btn-sm btn-outline-primary';
+          action.href = '../register.html';
+          action.onclick = null;
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', renderAccount);
+      // also update on message from parent
+      window.addEventListener('message', (ev) => {
+        if (!ev.data) return; if (ev.data.type === 'auth-updated') renderAccount();
+      });
+    </script>
+  </body>
 </html>
