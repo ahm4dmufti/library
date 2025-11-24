@@ -24,6 +24,18 @@ function initHome() {
         }
     ];
 
+    // Motivational quotes: shown on the index page and cycle on each click
+    const motivationalQuotes = [
+        "Read a little. Learn a lot.",
+        "One more page can change your perspective.",
+        "Books are portable magic — open one today.",
+        "A small daily reading habit yields big rewards.",
+        "Curiosity is the first step to every discovery.",
+        "Turn the page: new ideas await.",
+        "Every book is a conversation — join it.",
+        "Grow a little every day: read something new."
+    ];
+
     const booksContainer = document.getElementById('featured-books');
 
     /**
@@ -37,7 +49,7 @@ function initHome() {
                     <div class="card h-100 shadow-sm">
                         <div class="card-body d-flex flex-column align-items-center">
                             <img src="${book.image || 'assets/images/default.jpg'}" alt="${book.title} cover" style="width:140px; height:200px; object-fit:cover; border-radius:4px;" class="mb-2">
-                            <h5 class="card-title text-center">${book.title}</h5>
+                            <h5 class="card-title text-center">${book.title} <span class="badge most-read ms-2">Most Read</span></h5>
                             <h6 class="card-subtitle mb-2 text-muted small text-center">${book.author}</h6>
                             
                             <p class="card-text small text-center">
@@ -168,8 +180,38 @@ function initHome() {
         });
     }
 
+    /**
+     * Sets up the motivational text element to cycle through quotes on click (and keyboard).
+     */
+    function setupMotivational() {
+        const el = document.getElementById('motivational');
+        if (!el) return;
+
+        // index starts at a random quote so first click shows next one
+        let index = Math.floor(Math.random() * motivationalQuotes.length);
+
+        function showNext() {
+            index = (index + 1) % motivationalQuotes.length;
+            el.textContent = motivationalQuotes[index];
+        }
+
+        // Initialize with the first quote (the random start)
+        el.textContent = motivationalQuotes[index];
+        el.style.cursor = 'pointer';
+
+        el.addEventListener('click', showNext);
+        el.addEventListener('keydown', (ev) => {
+            if (ev.key === 'Enter' || ev.key === ' ') {
+                ev.preventDefault();
+                showNext();
+            }
+        });
+    }
+
     // Initialize the rendering of the book cards
     renderBookCards();
+    // initialize the motivational text behavior
+    setupMotivational();
 }
 
 if (document.readyState === 'loading') {

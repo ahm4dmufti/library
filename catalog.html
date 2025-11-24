@@ -16,15 +16,23 @@
     <div id="menu"></div>
 
     <main class="container">
-        <!-- Search Bar -->
-        <div class="mb-4">
-            <label for="searchInput" class="form-label fs-5">Search by Title:</label>
-            <input 
-                type="text" 
-                class="form-control form-control-lg" 
-                id="searchInput" 
-                placeholder="Start typing a book title..."
-            >
+        <!-- Search & Genre Filter -->
+        <div class="mb-4 row g-2 align-items-end">
+            <div class="col-md-8">
+                <label for="searchInput" class="form-label fs-5">Search by Title:</label>
+                <input 
+                    type="text" 
+                    class="form-control form-control-lg" 
+                    id="searchInput" 
+                    placeholder="Start typing a book title..."
+                >
+            </div>
+            <div class="col-md-4">
+                <label for="genreSelect" class="form-label fs-5">Filter by Genre:</label>
+                <select id="genreSelect" class="form-select form-select-lg">
+                    <option value="all">All Genres</option>
+                </select>
+            </div>
         </div>
 
         <!-- Book Cards Container -->
@@ -39,8 +47,9 @@
     <!-- Link to Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     
-    <!-- Link to your custom JavaScript file -->
-    <script src="assets/catalog.js"></script> 
+    <!-- Shared book data and custom JavaScript files -->
+    <script src="assets/book-data.js"></script>
+    <script src="assets/catalog.js"></script>
     <div id="footer"></div>
 
     <script src="assets/header.js"></script>

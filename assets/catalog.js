@@ -1,14 +1,18 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    // Data Rendering: JS array of books (kept in sync with featured books on index)
-    const bookData = [
-        { title: "The 48 Laws of Power", author: "Robert Greene", genre: "Personal Development" },
-        { title: "Moby-Dick; or, The Whale", author: "Herman Melville", genre: "Classic" },
-        { title: "Rich Dad Poor Dad", author: "Robert Kiyosaki", genre: "Finance" }
-    ];
+    // Data Rendering: read from shared `window.BOOK_DATA` when available.
+    // Fallback to a small default array if the shared data is not present.
+    const bookData = (window && window.BOOK_DATA)
+        ? window.BOOK_DATA.map(b => ({ title: b.title, author: b.author, genre: b.genre }))
+        : [
+            { title: "The 48 Laws of Power", author: "Robert Greene", genre: "Personal Development" },
+            { title: "Moby-Dick; or, The Whale", author: "Herman Melville", genre: "Classic" },
+            { title: "Rich Dad Poor Dad", author: "Robert Kiyosaki", genre: "Finance" }
+        ];
 
     const catalogContainer = document.getElementById('bookCatalog');
     const searchInput = document.getElementById('searchInput');
+    const genreSelect = document.getElementById('genreSelect');
 
     /**
      * Returns an image filename for a known book title.
@@ -16,10 +20,42 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     function getImageFileName(title) {
         const key = title.toLowerCase();
+        // Known matches for locally-present cover images
         if (key.includes('48')) return '48lawsofpower.jpg';
         if (key.includes('moby')) return 'moby-dick.jpg';
         if (key.includes('rich')) return 'richdadpoordad.jpg';
+        if (key.includes('harry')) return 'harry-potter-and-the-chamber-of-secrets.jpg';
+        if (key.includes('mockingbird')) return 'to-kill-a-mockingbird.jpg';
+        if (key.includes('1984')) return '1984.jpg';
+        if (key.includes('pride')) return 'pride-and-prejudice.jpg';
+        if (key.includes('hobbit')) return 'the-hobbit.jpg';
+        if (key.includes('sapiens')) return 'sapiens.jpg';
+        if (key.includes('gatsby')) return 'the-great-gatsby.jpg';
+        if (key.includes('catcher')) return 'the-catcher-in-the-rye.jpg';
+        if (key.includes('alchemist')) return 'the-alchemist.jpg';
+
+        // Fallback to a neutral default SVG (added to assets/images)
         return 'default.svg';
+    }
+
+    /**
+     * Populate the genre select with options derived from bookData.
+     */
+    function populateGenreOptions() {
+        if (!genreSelect) return;
+        // Collect unique genres
+        const genres = Array.from(new Set(bookData.map(b => (b.genre || 'Unknown').toString().trim()))).filter(Boolean);
+        // Clear existing (keep 'all' option if present)
+        const current = genreSelect.value || 'all';
+        genreSelect.innerHTML = '<option value="all">All Genres</option>';
+        genres.forEach(g => {
+            const opt = document.createElement('option');
+            opt.value = g.toLowerCase();
+            opt.textContent = g;
+            genreSelect.appendChild(opt);
+        });
+        // Restore previous selection if still available
+        genreSelect.value = current;
     }
 
     /**
@@ -37,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <img src="assets/images/${getImageFileName(book.title)}" alt="${book.title} cover" style="width:120px; height:170px; object-fit:cover; border-radius:4px;" class="mb-2">
                             <h5 class="card-title text-primary text-center small">${book.title}</h5>
                             <h6 class="card-subtitle mb-2 text-muted small text-center">By: ${book.author}</h6>
-                            <span class="badge bg-secondary small">${book.genre}</span>
+                            <span class="badge bg-secondary small" data-genre="${(book.genre || '').toLowerCase()}">${book.genre}</span>
                         </div>
                     </div>
                 </div>
@@ -96,6 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleLiveSearch() {
         // Get the search term and convert to lowercase for case-insensitive matching
         const searchTerm = searchInput.value.toLowerCase();
+        const selectedGenre = (genreSelect && genreSelect.value) ? genreSelect.value.toLowerCase() : 'all';
         
         // Get all the card elements that were just rendered
         const cards = document.querySelectorAll('.book-card');
@@ -104,10 +141,14 @@ document.addEventListener('DOMContentLoaded', () => {
         cards.forEach(card => {
             // Get the stored title from the data attribute (which is already lowercase)
             const cardTitle = card.getAttribute('data-title');
+            const genreBadge = card.querySelector('[data-genre]');
+            const cardGenre = genreBadge ? genreBadge.getAttribute('data-genre') : '';
             
             // Toggle card visibility based on match using includes()
             // If the card's title includes the search term, show it.
-            if (cardTitle.includes(searchTerm)) {
+            const matchesText = cardTitle.includes(searchTerm);
+            const matchesGenre = (selectedGenre === 'all') || (cardGenre === selectedGenre);
+            if (matchesText && matchesGenre) {
                 card.style.display = 'block'; // Show the column container
             } else {
                 card.style.display = 'none'; // Hide the column container
@@ -116,10 +157,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 1. Initial Render: Display all books when the page loads
+    populateGenreOptions();
     renderBookCards();
 
     // 2. Add live search using keyup event listener
     // Every time a key is released in the input field, the search function runs
     searchInput.addEventListener('keyup', handleLiveSearch);
+    if (genreSelect) genreSelect.addEventListener('change', handleLiveSearch);
 
 });

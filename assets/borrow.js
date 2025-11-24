@@ -1,9 +1,8 @@
 // --- DATA SETUP ---
-const BOOK_DATA = [
-    { id: 101, title: "The 48 Laws of Power", author: "Robert Greene", isbn: "978-0135957059", genre: "Self-Help", available: true },
-    { id: 102, title: "Moby-Dick; or, The Whale", author: "Herman Melville", isbn: "978-0132350884", genre: "Fiction", available: true },
-    { id: 103, title: "Rich Dad Poor Dad", author: "Robert Kiyosaki", isbn: "978-1593279509", genre: "Self-Help", available: true },
-];
+// Prefer the shared BOOK_DATA (populated by assets/book-data.js). If unavailable,
+// fall back to a minimal local set.
+const BOOK_DATA = (window && window.BOOK_DATA)
+
 
 // --- STATE MANAGEMENT ---
 let cart = [];
@@ -16,6 +15,7 @@ const emptyCartMessage = document.getElementById('empty-cart-message');
 const totalItemsCount = document.getElementById('total-items-count');
 const checkoutButton = document.getElementById('checkout-button');
 const searchInput = document.getElementById('borrow-search-input');
+const genreSelect = document.getElementById('borrow-genre-select');
 const messageBox = document.getElementById('message-box');
 
 // --- UTILITY FUNCTIONS ---
@@ -31,9 +31,12 @@ function renderBookList(filterText = '') {
     bookListContainer.innerHTML = '';
     const normalizedFilter = filterText.toLowerCase().trim();
 
+    const selectedGenre = (genreSelect && genreSelect.value) ? genreSelect.value.toLowerCase() : 'all';
     const filteredBooks = books.filter(book => {
         const searchString = `${book.title} ${book.author} ${book.isbn} ${book.genre}`.toLowerCase();
-        return searchString.includes(normalizedFilter);
+        const matchesText = searchString.includes(normalizedFilter);
+        const matchesGenre = (selectedGenre === 'all') || (book.genre && book.genre.toLowerCase() === selectedGenre);
+        return matchesText && matchesGenre;
     });
 
     if (filteredBooks.length === 0) {
@@ -44,11 +47,11 @@ function renderBookList(filterText = '') {
     filteredBooks.forEach(book => {
         const isBorrowed = !book.available || cart.some(item => item.id === book.id);
 
-        const cardHtml = `
+                const cardHtml = `
             <div id="book-${book.id}" class="book-card p-4 rounded-lg shadow-md ${isBorrowed ? 'bg-red-50 borrowed' : 'bg-white hover:shadow-lg'}" data-book-id="${book.id}">
                 <h3 class="text-xl font-semibold text-gray-800">${book.title}</h3>
                 <p class="text-sm text-gray-600 mt-1">Author: ${book.author}</p>
-                <span class="inline-block mt-2 px-3 py-1 text-xs font-medium rounded-full ${isBorrowed ? 'bg-red-200 text-red-800' : 'bg-indigo-100 text-indigo-800'}">
+                <span class="inline-block mt-2 px-3 py-1 text-xs font-medium rounded-full ${isBorrowed ? 'bg-red-200 text-red-800' : 'bg-indigo-100 text-indigo-800'}" data-genre="${(book.genre || '').toLowerCase()}">
                     ${book.genre}
                 </span>
                 <p class="text-xs text-gray-400 mt-1">ISBN: ${book.isbn}</p>
@@ -61,6 +64,23 @@ function renderBookList(filterText = '') {
         bookListContainer.insertAdjacentHTML('beforeend', cardHtml);
     });
     attachBookCardListeners();
+}
+
+/**
+ * Populate the borrow page genre select with unique genres from `books`.
+ */
+function populateBorrowGenres() {
+    if (!genreSelect) return;
+    const genres = Array.from(new Set(books.map(b => (b.genre || 'Unknown').toString().trim()))).filter(Boolean);
+    const current = genreSelect.value || 'all';
+    genreSelect.innerHTML = '<option value="all">All Genres</option>';
+    genres.forEach(g => {
+        const opt = document.createElement('option');
+        opt.value = g.toLowerCase();
+        opt.textContent = g;
+        genreSelect.appendChild(opt);
+    });
+    genreSelect.value = current;
 }
 
 /**
@@ -243,6 +263,11 @@ function initializeBorrowPage() {
     }
     if (searchInput) {
         searchInput.oninput = handleSearchInput;
+    }
+    // Populate genre dropdown and add change listener
+    if (genreSelect) {
+        populateBorrowGenres();
+        genreSelect.onchange = () => renderBookList(searchInput ? searchInput.value : '');
     }
 
     // Initial render of the book list and cart
