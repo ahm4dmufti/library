@@ -102,11 +102,13 @@ function renderCart() {
 
         cart.forEach(book => {
             const cartItemHtml = `
-                <div class="flex justify-between items-center p-3 bg-gray-100 rounded-lg shadow-sm">
-                    <span class="text-sm font-medium text-gray-700 truncate">${book.title}</span>
-                    <button class="remove-from-cart-button text-red-500 hover:text-red-700 p-1 rounded-full hover:bg-gray-200 transition"
-                            data-book-id="${book.id}" title="Remove from cart">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded shadow-sm">
+                    <span class="text-sm fw-medium text-dark text-truncate me-2">${book.title}</span>
+                    <button class="remove-from-cart-button text-danger p-1 rounded-circle border-0 bg-transparent d-flex align-items-center justify-content-center"
+                            data-book-id="${book.id}" title="Remove from cart" style="width: 32px; height: 32px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.backgroundColor='rgba(220, 38, 38, 0.1)'" onmouseout="this.style.backgroundColor='transparent'">
+                        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="display: block;">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
                     </button>
                 </div>
             `;
@@ -127,16 +129,21 @@ function showMessage(message, type) {
     if (!messageBox) return;
 
     messageBox.textContent = message;
-    messageBox.classList.remove('hidden', 'bg-green-100', 'text-green-800', 'bg-red-100', 'text-red-800');
+    // Remove Bootstrap's d-none class and any existing alert type classes
+    messageBox.classList.remove('d-none', 'alert-success', 'alert-danger', 'alert-info', 'alert-warning');
 
+    // Add appropriate Bootstrap alert class based on type
     if (type === 'success') {
-        messageBox.classList.add('bg-green-100', 'text-green-800');
+        messageBox.classList.add('alert-success');
     } else if (type === 'error') {
-        messageBox.classList.add('bg-red-100', 'text-red-800');
+        messageBox.classList.add('alert-danger');
+    } else {
+        messageBox.classList.add('alert-info');
     }
 
+    // Hide the message after 5 seconds
     setTimeout(() => {
-        messageBox.classList.add('hidden');
+        messageBox.classList.add('d-none');
     }, 5000);
 }
 
@@ -156,9 +163,7 @@ function attachBookCardListeners() {
                 cart.push(book);
                 showMessage(`'${book.title}' added to cart!`, 'success');
                 renderCart();
-            } else {
-                showMessage("Error: Book is unavailable or already in cart.", 'error');
-            }
+            } 
         };
     });
 }
@@ -189,13 +194,16 @@ function handleCheckout() {
         showMessage('Your cart is empty. Please add books to borrow.', 'error');
         return;
     }
-    // Require a signed-in user
+    
+    // Require a signed-in user - if not logged in, show message 
     const currentUser = localStorage.getItem('currentUser');
     if (!currentUser) {
         showMessage('Please register or login before borrowing. Go to Register page.', 'error');
+        // Explicitly return early - cart and books remain unchanged
         return;
     }
 
+    // Only proceed with checkout if user is logged in
     // Simulate the borrowing transaction
     const borrowedTitles = cart.map(b => b.title).join(', ');
     const borrowedIds = cart.map(b => b.id);
