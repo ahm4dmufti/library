@@ -21,8 +21,9 @@
         <h3>Login</h3>
         <form id="login-form">
           <div class="mb-3">
-            <label class="form-label">Username</label>
-            <input id="login-username" class="form-control" required>
+            <label class="form-label">Email (must end with @limu.edu.ly)</label>
+            <input id="login-email" type="email" class="form-control" placeholder="example@limu.edu.ly" required>
+            <div id="login-email-error" class="text-danger mt-1" style="display:none;"></div>
           </div>
           <div class="mb-3">
             <label class="form-label">Password</label>
