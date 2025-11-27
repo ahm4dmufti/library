@@ -4,6 +4,13 @@
  * This module provides server-side validation for login and registration.
  * Emails must end with '@limu.edu.ly' domain.
  * 
+ * SECURITY WARNING: This is a demonstration module. For production use:
+ * - Use bcrypt or argon2 to hash passwords before storage
+ * - Replace in-memory storage with a proper database
+ * - Implement rate limiting and account lockout
+ * - Use HTTPS for all communications
+ * - Add CSRF protection
+ * 
  * Usage (Node.js):
  *   const auth = require('./auth');
  *   

@@ -1,7 +1,27 @@
 // Simple client-side auth using localStorage (for demo only)
 // Emails must end with @limu.edu.ly domain
+// WARNING: This is a demo implementation. Passwords are stored in plain text.
+// For production use, implement proper server-side authentication with password hashing.
 
 const ALLOWED_EMAIL_DOMAIN = '@limu.edu.ly';
+
+/**
+ * Creates a debounced function that delays invoking the callback.
+ * @param {Function} func - The function to debounce.
+ * @param {number} wait - The number of milliseconds to delay.
+ * @returns {Function} - The debounced function.
+ */
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
 
 /**
  * Validates that an email address ends with the allowed domain.
@@ -90,16 +110,21 @@ document.addEventListener('DOMContentLoaded', () => {
   const regForm = document.getElementById('register-form');
   const loginForm = document.getElementById('login-form');
   
+  // Debounced email validation handler to improve performance
+  const validateEmailField = debounce((inputElement, errorElementId) => {
+    const validation = validateEmail(inputElement.value);
+    if (inputElement.value.trim() && !validation.valid) {
+      showEmailError(errorElementId, validation.message);
+    } else {
+      clearEmailError(errorElementId);
+    }
+  }, 300);
+  
   // Add real-time email validation for registration form
   const regEmailInput = document.getElementById('reg-email');
   if (regEmailInput) {
     regEmailInput.addEventListener('input', () => {
-      const validation = validateEmail(regEmailInput.value);
-      if (regEmailInput.value.trim() && !validation.valid) {
-        showEmailError('reg-email-error', validation.message);
-      } else {
-        clearEmailError('reg-email-error');
-      }
+      validateEmailField(regEmailInput, 'reg-email-error');
     });
   }
   
@@ -107,12 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const loginEmailInput = document.getElementById('login-email');
   if (loginEmailInput) {
     loginEmailInput.addEventListener('input', () => {
-      const validation = validateEmail(loginEmailInput.value);
-      if (loginEmailInput.value.trim() && !validation.valid) {
-        showEmailError('login-email-error', validation.message);
-      } else {
-        clearEmailError('login-email-error');
-      }
+      validateEmailField(loginEmailInput, 'login-email-error');
     });
   }
 
