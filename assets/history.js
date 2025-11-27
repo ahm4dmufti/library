@@ -42,9 +42,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   ];
 
-  // إذا ما في history من localStorage، استعمل historyData
   if (!history.length) {
-    // هنا بنحوّل historyData لشكل أبسط لو أحببت
+
     history = historyData.map(item => ({
       date: item.dateBorrowed,
       titles: [item.title],
@@ -53,8 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
       fine: item.fine
     }));
   } else {
-    // لو history جاي من localStorage تأكد من البنية (مثلاً: {date:..., titles:[...]})
-    // يمكن تحتاج تعديل بحسب البنية الفعلية عندك
+
   }
 
   if (!history.length) {
@@ -62,13 +60,12 @@ document.addEventListener('DOMContentLoaded', () => {
     return;
   }
 
-  // نمط العرض: نستخدم عناصر DOM ونتجنّب innerHTML الثقيلة للإنترأكشن
-  list.innerHTML = ''; // نظف المكان
+  
+  list.innerHTML = ''; 
   history.forEach((entryData, index) => {
     const card = document.createElement('div');
     card.className = 'card mb-3';
 
-    // تهيئة قيم عرض آمنة
     const dateStr = entryData.date ? new Date(entryData.date).toLocaleString() : 'Unknown date';
     const title = (entryData.titles && entryData.titles.length) ? entryData.titles.join(', ') : (entryData.title || 'Unknown title');
 
@@ -88,7 +85,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     list.appendChild(card);
 
-    // اربط الزر بالـ details داخل نفس البطاقة
     const btn = card.querySelector('button[data-index]');
     const details = card.querySelector('.details');
 
